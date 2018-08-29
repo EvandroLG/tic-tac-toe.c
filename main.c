@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdlib.h>
+#include <string.h>
 
 enum { NOUGHTS, CROSSES, BORDER=3, EMPTY=0 };
 
@@ -31,7 +31,49 @@ int hasEmpty(int *board) {
 }
 
 void makeMove(int *board, int square, int side) {
+    board[square] = side;
+}
 
+int getHumanMove(int *board) {
+    char userInput[4];
+    int moveOk = 0;
+    int move = -1;
+
+    while (moveOk == 0) {
+        printf("Enter a move from 1 to 9 - ");
+        fgets(userInput, 3, stdin);
+        fflush(stdin);
+
+        if (strlen(userInput) != 2) {
+            printf("Invalid strlen()\n");
+            continue;
+        }
+
+        if (sscanf(userInput, "%d", &move) != 1) {
+            move = -1;
+            printf("Invalid sscanf()\n");
+            continue;
+        }
+
+        if (move < 1 || move > 9) {
+            move = -1;
+            printf("Invalid range\n");
+            continue;
+        }
+
+        move--;
+
+        if (board[CONVERT_TO_25[move]] != EMPTY) {
+            move = -1;
+            printf("Square not available\n");
+            continue;
+        }
+
+        moveOk = 1;
+    }
+
+    printf("Making move...\n");
+    return CONVERT_TO_25[move];
 }
 
 void printBoard(int *board) {
@@ -60,6 +102,7 @@ void runGame() {
 
     while (!gameOver) {
         if (side == NOUGHTS) {
+            getHumanMove(&board[0]);
         } else {
             printBoard(&board[0]);
         }
