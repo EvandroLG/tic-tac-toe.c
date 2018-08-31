@@ -10,6 +10,8 @@ const int CONVERT_TO_25[9] = {
     16, 17, 18
 };
 
+const int DIRECTIONS[4] = { 1, 5, 4, 6 };
+
 void initializeBoard(int *board) {
     for (int i = 0; i < 25; i++) {
         board[i] = BORDER;
@@ -108,6 +110,40 @@ void printBoard(int *board) {
     printf("\n");
 }
 
+int getNumberForDirection(int start, int direction, int *board, int us) {
+    int found = 0;
+
+    while (board[start] != BORDER) {
+        if (board[start] != us) {
+            break;
+        }
+
+        found++;
+        start += direction;
+    }
+
+    return found;
+}
+
+int findThreeInRow(int *board, int index, int us) {
+    int dir = 0;
+    int threeCount = 1;
+
+    for (int i = 0; i < 4; i++) {
+        dir = DIRECTIONS[i];
+        threeCount += getNumberForDirection(index + dir, dir, board, us);
+        threeCount += getNumberForDirection(index + dir * -1, dir * -1, board, us);
+
+        if (threeCount == 3) {
+            break;
+        }
+
+        threeCount = 1;
+    }
+
+    return threeCount;
+}
+
 void runGame() {
     int gameOver = 0;
     int lastMoveMade = 0;
@@ -129,13 +165,26 @@ void runGame() {
 
             printBoard(&board[0]);
         }
+
+        if (findThreeInRow(board, lastMoveMade, side ^ 1) == 3) {
+            printf("Game over!\n");
+            gameOver = 1;
+
+            if (side == NOUGHTS) {
+                printf("Computer wins\n");
+            } else {
+                printf("Human wins\n");
+            }
+        }
+
+        if (!hasEmpty(board)) {
+            printf("Game over!\n");
+            gameOver = 1;
+            printf("It's a draw\n");
+        }
     }
 
-    if (!hasEmpty(board)) {
-        printf("Game over!\n");
-        gameOver = 1;
-        printf("It's a draw\n");
-    }
+    printBoard(&board[0]);
 }
 
 int main() {
